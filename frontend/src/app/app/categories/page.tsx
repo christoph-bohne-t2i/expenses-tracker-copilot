@@ -83,7 +83,7 @@ export default function CategoriesPage() {
 
   const usage = useQuery({
     queryKey: ['category-usage', deleteId],
-    queryFn: () => api<{ count: number }>(`/categories/${deleteId}/usages`),
+    queryFn: () => api<{ count: number }>(`/categories/${deleteId}/usage`),
     enabled: !!deleteId, // only fetch when dialog is open with a target
   });
 
@@ -198,7 +198,11 @@ export default function CategoriesPage() {
                           <Button
                             variant="destructive"
                             onClick={() => del.mutate()}
-                            disabled={del.isPending || usage.isLoading}
+                            disabled={
+                              del.isPending ||
+                              usage.isLoading ||
+                              (usage.isSuccess && usage.data.count > 0)
+                            }
                           >
                             Delete
                           </Button>

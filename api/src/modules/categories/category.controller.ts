@@ -32,6 +32,6 @@ export const remove: RequestHandler = async (req, res) => {
 };
 
 export const usage: RequestHandler = async (req, res) => {
-  const count = getCategoryCount(req.userId!, req.params.id);
+  const count = await getCategoryCount(req.userId!, req.params.id);
   res.json({ count });
 };
