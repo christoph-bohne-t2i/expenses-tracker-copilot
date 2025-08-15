@@ -6,11 +6,16 @@ import {
   categoryIdParam,
   categoryRenameSchema,
 } from './category.schema';
-import { create, list, remove, rename } from './category.controller';
+import { create, list, remove, rename, usage } from './category.controller';
 
 export const categoryRouter = Router();
 
 categoryRouter.get('/', asyncHandler(list));
+categoryRouter.get(
+  '/:id/usage',
+  validate(categoryIdParam, 'params'),
+  asyncHandler(usage)
+);
 categoryRouter.post(
   '/',
   validate(categoryCreateSchema, 'body'),

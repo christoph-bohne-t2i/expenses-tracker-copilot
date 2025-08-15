@@ -43,16 +43,21 @@ export async function renameCategory(userId: string, id: string, name: string) {
   }
 }
 
-/** Strategy A: detach on delete (keeps expenses, nulls categoryId) */
 export async function deleteCategory(userId: string, id: string) {
-  const owned = await prisma.category.findUnique({ where: { id, userId } });
-  if (!owned) throw new HttpError(404, 'Category not found');
+  const usage = await prisma.expense.count({
+    where: { userId, categoryId: id },
+  });
 
-  await prisma.$transaction([
-    prisma.expense.updateMany({
-      where: { userId, categoryId: id },
-      data: { categoryId: null },
-    }),
-    prisma.category.delete({ where: { id } }),
-  ]);
+  if (usage > 0) {
+    throw new HttpError(400, 'in use');
+  }
+
+  await prisma.category.delete({ where: { id } });
+}
+
+export async function getCategoryCount(userId: string, id: string) {
+  const count = await prisma.expense.count({
+    where: { categoryId: id },
+  });
+  return count;
 }
