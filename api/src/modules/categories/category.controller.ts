@@ -2,6 +2,7 @@ import type { RequestHandler } from 'express';
 import {
   createCategory,
   deleteCategory,
+  getCategoryCount,
   listCategories,
   renameCategory,
 } from './category.service';
@@ -28,4 +29,9 @@ export const rename: RequestHandler = async (req, res) => {
 export const remove: RequestHandler = async (req, res) => {
   await deleteCategory(req.userId!, req.params.id);
   res.status(204).send();
+};
+
+export const usage: RequestHandler = async (req, res) => {
+  const count = await getCategoryCount(req.userId!, req.params.id);
+  res.json({ count });
 };
