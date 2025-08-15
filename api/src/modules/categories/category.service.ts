@@ -47,9 +47,7 @@ export async function deleteCategory(userId: string, id: string) {
   const owned = await prisma.category.findUnique({ where: { id, userId } });
   if (!owned) throw new HttpError(404, 'Category not found');
 
-  const usage = await prisma.expense.count({
-    where: { userId, categoryId: id },
-  });
+  const usage = await getCategoryCount(userId, id);
 
   if (usage > 0) {
     throw new HttpError(409, `Category is in use by ${usage} expense(s)`);

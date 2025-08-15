@@ -180,8 +180,9 @@ export default function CategoriesPage() {
                         {usage.isSuccess && usage.data.count > 0 && (
                           <p className="text-sm text-destructive">
                             Cannot delete: this category is used by
-                            {' ' + usage.data.count} expense
-                            {usage.data.count === 1 ? '' : 's'}.
+                            {`${usage.data.count} expense${
+                              usage.data.count === 1 ? '' : 's'
+                            }.`}
                           </p>
                         )}
                         {usage.isSuccess && usage.data.count === 0 && (
