@@ -81,6 +81,12 @@ export default function CategoriesPage() {
       toast.error(e instanceof Error ? e.message : 'Failed to delete category'),
   });
 
+  const usage = useQuery({
+    queryKey: ['category-usage', deleteId],
+    queryFn: () => api<{ count: number }>(`/categories/${deleteId}/usages`),
+    enabled: !!deleteId, // only fetch when dialog is open with a target
+  });
+
   return (
     <main className="space-y-6">
       <Card>
@@ -171,10 +177,17 @@ export default function CategoriesPage() {
                         <DialogHeader>
                           <DialogTitle>Delete “{c.name}”?</DialogTitle>
                         </DialogHeader>
-                        <p className="text-sm text-muted-foreground">
-                          This will detach it from any expenses and remove the
-                          category.
-                        </p>
+                        {usage.isSuccess && usage.data.count > 0 && (
+                          <p className="text-sm text-destructive">
+                            Cannot delete: this category is used by
+                            {' ' + usage.data.count} expense(s).
+                          </p>
+                        )}
+                        {usage.isSuccess && usage.data.count === 0 && (
+                          <p className="text-sm text-muted-foreground">
+                            This action cannot be undone.
+                          </p>
+                        )}
                         <DialogFooter className="mt-4">
                           <Button
                             variant="ghost"
@@ -185,7 +198,7 @@ export default function CategoriesPage() {
                           <Button
                             variant="destructive"
                             onClick={() => del.mutate()}
-                            disabled={del.isPending}
+                            disabled={del.isPending || usage.isLoading}
                           >
                             Delete
                           </Button>
