@@ -18,8 +18,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
 
 type Props = {
   categoryKey: string;
