@@ -23,25 +23,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Filters from '@/components/expenses/Filter';
 
 export default function ExpensesPage() {
+  const [range, setRange] = useState<{ from?: string; to?: string }>({
+    from: undefined,
+    to: undefined,
+  });
+
   const ALL_CATEGORIES = 'All';
   const qc = useQueryClient();
 
   const categories = useQuery({
     queryKey: ['categories'],
     queryFn: () => api<Category[]>('/categories'),
+    placeholderData: (prev) => prev,
   });
 
   const [categoryKey, setCategoryKey] = useState<string>(ALL_CATEGORIES);
 
+  function buildExpensesUrl() {
+    const qs = new URLSearchParams();
+    if (range.from) qs.set('from', range.from);
+    if (range.to) qs.set('to', range.to);
+    qs.set('categoryId', categoryKey);
+    const q = qs.toString();
+    return `/expenses${q ? `?${q}` : ''}`;
+  }
+
   const list = useQuery({
-    queryKey: ['expenses', categoryKey],
-    queryFn: () => {
-      const qs =
-        categoryKey === ALL_CATEGORIES ? '' : `?categoryId=${categoryKey}`;
-      return api<Expense[]>(`/expenses${qs}`);
-    },
+    queryKey: [
+      'expenses',
+      { category: categoryKey, from: range.from ?? null, to: range.to ?? null },
+    ],
+    queryFn: () => api<Expense[]>(buildExpensesUrl()),
+    placeholderData: (prev) => prev,
   });
 
   const [form, setForm] = useState({
@@ -72,32 +88,17 @@ export default function ExpensesPage() {
 
   return (
     <main className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <div className="space-y-1">
-            <Label>Category</Label>
-            <Select
-              value={categoryKey}
-              onValueChange={(v) => setCategoryKey(v)}
-            >
-              <SelectTrigger className="w-56">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_CATEGORIES}>{ALL_CATEGORIES}</SelectItem>
-                {categories.data?.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <Filters
+        categoryKey={categoryKey}
+        from={range.from}
+        to={range.to}
+        onCategoryChange={setCategoryKey}
+        onDateChange={(next) => setRange((r) => ({ ...r, ...next }))}
+        onClear={() => {
+          setRange({});
+        }}
+        categories={categories.data}
+      />
       <Card>
         <CardHeader>
           <CardTitle>Add expense</CardTitle>
