@@ -96,6 +96,7 @@ export default function ExpensesPage() {
         onDateChange={(next) => setRange((r) => ({ ...r, ...next }))}
         onClear={() => {
           setRange({});
+          setCategoryKey(ALL_CATEGORIES);
         }}
         categories={categories.data}
       />
