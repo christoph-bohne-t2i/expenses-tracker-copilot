@@ -42,11 +42,6 @@ export default function Filters({
 }: Props) {
   const ALL_CATEGORIES = 'All';
 
-  const cats = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => api<Category[]>('/categories'),
-  });
-
   return (
     <Card>
       <CardHeader>
@@ -130,7 +125,7 @@ export default function Filters({
               variant="ghost"
               className="font-normal"
               onClick={onClear}
-              disabled={!from && !to && categoryKey === 'ALL'}
+              disabled={!from && !to && categoryKey === ALL_CATEGORIES}
             >
               Clear filters
             </Button>
